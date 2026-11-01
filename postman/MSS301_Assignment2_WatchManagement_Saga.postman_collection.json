@@ -1,0 +1,1037 @@
+{
+  "info": {
+    "_postman_id": "c1f2b48e-8e42-4981-b5ea-123456789abc",
+    "name": "MSS301 Assignment 02 - Watch Management Saga",
+    "description": "Comprehensive Postman Test Collection for MSS301 Assignment 02: Watch Management Microservices using Saga Pattern, Database-per-Service, and API Gateway Edge Security.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "var today = new Date().toISOString().slice(0, 10);",
+          "pm.environment.set('current_date', today);"
+        ]
+      }
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Authentication (AccountService)",
+      "item": [
+        {
+          "name": "1.1 Admin Login (adminsys / @1)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200 OK', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "var jsonData = pm.response.json();",
+                  "pm.test('Admin JWT token received', function () {",
+                  "    pm.expect(jsonData.token).to.be.a('string');",
+                  "    pm.expect(jsonData.account.role).to.eql(1);",
+                  "    pm.expect(jsonData.account.roleName).to.eql('ADMIN');",
+                  "    pm.environment.set('admin_token', jsonData.token);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"username\": \"adminsys\",\n    \"password\": \"@1\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/accounts/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "accounts", "login"]
+            }
+          }
+        },
+        {
+          "name": "1.2 Staff Login (staff02 / @1)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200 OK', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "var jsonData = pm.response.json();",
+                  "pm.test('Staff JWT token received', function () {",
+                  "    pm.expect(jsonData.account.role).to.eql(2);",
+                  "    pm.environment.set('staff_token', jsonData.token);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"username\": \"staff02\",\n    \"password\": \"@1\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/accounts/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "accounts", "login"]
+            }
+          }
+        },
+        {
+          "name": "1.3 Member Login (member01 / @1)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200 OK', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "var jsonData = pm.response.json();",
+                  "pm.test('Member JWT token received', function () {",
+                  "    pm.expect(jsonData.account.role).to.eql(3);",
+                  "    pm.environment.set('member_token', jsonData.token);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"username\": \"member01\",\n    \"password\": \"@1\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/accounts/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "accounts", "login"]
+            }
+          }
+        },
+        {
+          "name": "1.4 Inactive Account Login (member02 / @1) - Should Fail",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 401 Unauthorized for inactive account', function () {",
+                  "    pm.response.to.have.status(401);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"username\": \"member02\",\n    \"password\": \"@1\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/accounts/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "accounts", "login"]
+            }
+          }
+        },
+        {
+          "name": "1.5 Invalid Credentials Login - Should Fail",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 401 Unauthorized', function () {",
+                  "    pm.response.to.have.status(401);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"username\": \"adminsys\",\n    \"password\": \"wrongpass\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/accounts/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "accounts", "login"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Public Watch Catalog (Req 1)",
+      "item": [
+        {
+          "name": "2.1 List All Watches (Public - No Auth Required)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200 OK', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "var jsonData = pm.response.json();",
+                  "pm.test('Returns list of watches with CategoryName', function () {",
+                  "    pm.expect(jsonData).to.be.an('array');",
+                  "    pm.expect(jsonData.length).to.be.at.least(1);",
+                  "    var item = jsonData[0];",
+                  "    pm.expect(item).to.have.property('watchId');",
+                  "    pm.expect(item).to.have.property('name');",
+                  "    pm.expect(item).to.have.property('categoryId');",
+                  "    pm.expect(item).to.have.property('categoryName');",
+                  "    pm.expect(item).to.have.property('brandId');",
+                  "    pm.expect(item).to.have.property('price');",
+                  "    pm.expect(item).to.have.property('releaseDate');",
+                  "    pm.expect(item).to.have.property('stock');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/watches",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "watches"]
+            }
+          }
+        },
+        {
+          "name": "2.2 Get Watch by ID (Public)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200 OK', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "var jsonData = pm.response.json();",
+                  "pm.test('Watch details verified', function () {",
+                  "    pm.expect(jsonData.watchId).to.eql(1);",
+                  "    pm.expect(jsonData.name).to.eql('Submariner Date');",
+                  "    pm.expect(jsonData.categoryName).to.eql('Dive Watches');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/watches/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "watches", "1"]
+            }
+          }
+        },
+        {
+          "name": "2.3 List Categories (Public)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200 OK', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "var jsonData = pm.response.json();",
+                  "pm.test('Returns 5 seed categories', function () {",
+                  "    pm.expect(jsonData.length).to.be.at.least(5);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/watches/categories",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "watches", "categories"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Authorization Guards (Gateway Security)",
+      "item": [
+        {
+          "name": "3.1 Add Watch Without Token - Should Return 401",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 401 Unauthorized', function () {",
+                  "    pm.response.to.have.status(401);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Unauthorized Watch Creation\",\n    \"categoryId\": 1,\n    \"brandId\": 1,\n    \"caseMaterial\": \"Steel\",\n    \"strapMaterial\": \"Steel\",\n    \"waterpMaterial\": \"100m\",\n    \"price\": 500.0,\n    \"releaseDate\": \"{{current_date}}\",\n    \"stock\": 10\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/watches",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "watches"]
+            }
+          }
+        },
+        {
+          "name": "3.2 Add Watch With Staff Token - Should Return 403 Forbidden",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 403 Forbidden for non-admin', function () {",
+                  "    pm.response.to.have.status(403);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{staff_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Staff Forbidden Creation\",\n    \"categoryId\": 1,\n    \"brandId\": 1,\n    \"caseMaterial\": \"Steel\",\n    \"strapMaterial\": \"Steel\",\n    \"waterpMaterial\": \"100m\",\n    \"price\": 500.0,\n    \"releaseDate\": \"{{current_date}}\",\n    \"stock\": 10\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/watches",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "watches"]
+            }
+          }
+        },
+        {
+          "name": "3.3 Add Watch With Member Token - Should Return 403 Forbidden",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 403 Forbidden for member', function () {",
+                  "    pm.response.to.have.status(403);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{member_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Member Forbidden Creation\",\n    \"categoryId\": 1,\n    \"brandId\": 1,\n    \"caseMaterial\": \"Steel\",\n    \"strapMaterial\": \"Steel\",\n    \"waterpMaterial\": \"100m\",\n    \"price\": 500.0,\n    \"releaseDate\": \"{{current_date}}\",\n    \"stock\": 10\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/watches",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "watches"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Business Validations (Req 3, 4)",
+      "item": [
+        {
+          "name": "4.1 Name <= 10 characters - Should Return 400",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 400 Bad Request', function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "var jsonData = pm.response.json();",
+                  "pm.test('Error message specifies Name length > 10', function () {",
+                  "    pm.expect(jsonData.message).to.include('Name');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Rolex Sub\",\n    \"categoryId\": 1,\n    \"brandId\": 1,\n    \"caseMaterial\": \"Steel\",\n    \"strapMaterial\": \"Steel\",\n    \"waterpMaterial\": \"300m\",\n    \"price\": 500.0,\n    \"releaseDate\": \"{{current_date}}\",\n    \"stock\": 10\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/watches",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "watches"]
+            }
+          }
+        },
+        {
+          "name": "4.2 Price < 100 - Should Return 400",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 400 Bad Request', function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "var jsonData = pm.response.json();",
+                  "pm.test('Error message specifies Price >= 100', function () {",
+                  "    pm.expect(jsonData.message).to.include('Price');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Valid Watch Name Long\",\n    \"categoryId\": 1,\n    \"brandId\": 1,\n    \"caseMaterial\": \"Steel\",\n    \"strapMaterial\": \"Steel\",\n    \"waterpMaterial\": \"300m\",\n    \"price\": 99.99,\n    \"releaseDate\": \"{{current_date}}\",\n    \"stock\": 10\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/watches",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "watches"]
+            }
+          }
+        },
+        {
+          "name": "4.3 ReleaseDate != Current Date - Should Return 400",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 400 Bad Request', function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "var jsonData = pm.response.json();",
+                  "pm.test('Error message specifies ReleaseDate = Current date', function () {",
+                  "    pm.expect(jsonData.message).to.include('ReleaseDate');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Valid Watch Name Long\",\n    \"categoryId\": 1,\n    \"brandId\": 1,\n    \"caseMaterial\": \"Steel\",\n    \"strapMaterial\": \"Steel\",\n    \"waterpMaterial\": \"300m\",\n    \"price\": 500.0,\n    \"releaseDate\": \"2020-01-01\",\n    \"stock\": 10\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/watches",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "watches"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Saga Pattern - Add Watch & Top-of-List (Req 3)",
+      "item": [
+        {
+          "name": "5.1 Check Initial Brand Count (Seiko, ID 3)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200 OK', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "var jsonData = pm.response.json();",
+                  "pm.environment.set('initial_seiko_count', jsonData.totalWatches);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/brands/3",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "brands", "3"]
+            }
+          }
+        },
+        {
+          "name": "5.2 Admin Adds Valid Watch",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 201 Created', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "var jsonData = pm.response.json();",
+                  "pm.test('Watch created with CategoryName', function () {",
+                  "    pm.expect(jsonData.watchId).to.be.a('number');",
+                  "    pm.expect(jsonData.categoryName).to.eql('Dive Watches');",
+                  "    pm.environment.set('created_watch_id', jsonData.watchId);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Seiko Prospex Marine Master Diver\",\n    \"categoryId\": 1,\n    \"brandId\": 3,\n    \"caseMaterial\": \"Titanium\",\n    \"strapMaterial\": \"Silicone\",\n    \"waterpMaterial\": \"300 meters\",\n    \"price\": 1850.00,\n    \"releaseDate\": \"{{current_date}}\",\n    \"stock\": 15\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/watches",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "watches"]
+            }
+          }
+        },
+        {
+          "name": "5.3 Verify Brand Count Incremented (Saga Participant)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200 OK', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "var jsonData = pm.response.json();",
+                  "var initialCount = parseInt(pm.environment.get('initial_seiko_count'));",
+                  "pm.test('Brand totalWatches incremented by 1 via Saga', function () {",
+                  "    pm.expect(jsonData.totalWatches).to.eql(initialCount + 1);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/brands/3",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "brands", "3"]
+            }
+          }
+        },
+        {
+          "name": "5.4 Verify New Watch is at Top of List",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200 OK', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "var jsonData = pm.response.json();",
+                  "var createdId = parseInt(pm.environment.get('created_watch_id'));",
+                  "pm.test('New item displays at the top of the list', function () {",
+                  "    pm.expect(jsonData[0].watchId).to.eql(createdId);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/watches",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "watches"]
+            }
+          }
+        },
+        {
+          "name": "5.5 Verify Saga Log Audit Trail",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200 OK', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "var jsonData = pm.response.json();",
+                  "pm.test('Saga recorded with COMPLETED status', function () {",
+                  "    pm.expect(jsonData).to.be.an('array');",
+                  "    pm.expect(jsonData[0].status).to.eql('COMPLETED');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/watches/saga-logs/{{created_watch_id}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "watches", "saga-logs", "{{created_watch_id}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "6. Saga Pattern - Update Watch (Req 4)",
+      "item": [
+        {
+          "name": "6.1 Admin Updates Watch and Migrates Brand",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200 OK', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "var jsonData = pm.response.json();",
+                  "pm.test('Watch updated with new BrandID 1 (Rolex)', function () {",
+                  "    pm.expect(jsonData.brandId).to.eql(1);",
+                  "    pm.expect(jsonData.price).to.eql(12500);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Rolex Sea-Dweller Deepsea Special\",\n    \"categoryId\": 1,\n    \"brandId\": 1,\n    \"caseMaterial\": \"Oystersteel\",\n    \"strapMaterial\": \"Oystersteel\",\n    \"waterpMaterial\": \"3900 meters\",\n    \"price\": 12500.00,\n    \"releaseDate\": \"{{current_date}}\",\n    \"stock\": 8\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/watches/{{created_watch_id}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "watches", "{{created_watch_id}}"]
+            }
+          }
+        },
+        {
+          "name": "6.2 Verify New Brand (Rolex, ID 1) Incremented",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200 OK', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "var jsonData = pm.response.json();",
+                  "pm.test('Rolex totalWatches is now 3', function () {",
+                  "    pm.expect(jsonData.totalWatches).to.eql(3);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/brands/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "brands", "1"]
+            }
+          }
+        },
+        {
+          "name": "6.3 Verify Old Brand (Seiko, ID 3) Decremented",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200 OK', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "var jsonData = pm.response.json();",
+                  "pm.test('Seiko totalWatches returned to 2', function () {",
+                  "    pm.expect(jsonData.totalWatches).to.eql(2);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/brands/3",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "brands", "3"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "7. Saga Failure & Compensation Rollback",
+      "item": [
+        {
+          "name": "7.1 Add Watch With Non-Existent Brand - Should Fail & Abort",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 400 Bad Request', function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "var jsonData = pm.response.json();",
+                  "pm.test('Rejection mentions invalid brand', function () {",
+                  "    pm.expect(jsonData.message).to.include('Brand');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Invalid Brand Watch Test\",\n    \"categoryId\": 1,\n    \"brandId\": 9999,\n    \"caseMaterial\": \"Steel\",\n    \"strapMaterial\": \"Steel\",\n    \"waterpMaterial\": \"100m\",\n    \"price\": 500.00,\n    \"releaseDate\": \"{{current_date}}\",\n    \"stock\": 10\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/watches",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "watches"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "8. Saga Pattern - Delete Watch (Req 2)",
+      "item": [
+        {
+          "name": "8.1 Admin Deletes Watch",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 204 No Content', function () {",
+                  "    pm.response.to.have.status(204);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/watches/{{created_watch_id}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "watches", "{{created_watch_id}}"]
+            }
+          }
+        },
+        {
+          "name": "8.2 Verify Brand Count Decremented Back in BrandService",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200 OK', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "var jsonData = pm.response.json();",
+                  "pm.test('Rolex totalWatches returned back to 2', function () {",
+                  "    pm.expect(jsonData.totalWatches).to.eql(2);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/brands/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "brands", "1"]
+            }
+          }
+        },
+        {
+          "name": "8.3 Verify Watch is Removed from Database",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 404 Not Found', function () {",
+                  "    pm.response.to.have.status(404);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/watches/{{created_watch_id}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "watches", "{{created_watch_id}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "9. Brand Management (BrandService)",
+      "item": [
+        {
+          "name": "9.1 List All Brands (Public)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200 OK', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "var jsonData = pm.response.json();",
+                  "pm.test('Returns 5 seed brands', function () {",
+                  "    pm.expect(jsonData.length).to.be.at.least(5);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/brands",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "brands"]
+            }
+          }
+        },
+        {
+          "name": "9.2 Get Brand By ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200 OK', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "var jsonData = pm.response.json();",
+                  "pm.test('Brand ID 1 is Rolex', function () {",
+                  "    pm.expect(jsonData.brandId).to.eql(1);",
+                  "    pm.expect(jsonData.brandName).to.eql('Rolex');",
+                  "    pm.expect(jsonData.countryOfOrigin).to.eql('Switzerland');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/brands/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "brands", "1"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

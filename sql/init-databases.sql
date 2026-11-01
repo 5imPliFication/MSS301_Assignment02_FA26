@@ -1,0 +1,17 @@
+IF NOT EXISTS (SELECT * FROM sys.databases WHERE name = 'DBAccount')
+BEGIN
+    CREATE DATABASE DBAccount;
+END
+GO
+
+IF NOT EXISTS (SELECT * FROM sys.databases WHERE name = 'DBBrand')
+BEGIN
+    CREATE DATABASE DBBrand;
+END
+GO
+
+IF NOT EXISTS (SELECT * FROM sys.databases WHERE name = 'DBWatch')
+BEGIN
+    CREATE DATABASE DBWatch;
+END
+GO
