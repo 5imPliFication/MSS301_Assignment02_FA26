@@ -3,17 +3,19 @@ set -e
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
 cd "$DIR"
+if [ -f .env ]; then
+    set -a
+    source .env
+    set +a
+fi
+if [ -n "${JAVA_HOME:-}" ] && [ -d "$JAVA_HOME/bin" ]; then
+    export PATH="$JAVA_HOME/bin:$PATH"
+fi
 
 echo "=== Starting MS SQL Server container ==="
 docker compose up -d mssql
 
-echo "Waiting for SQL Server to be healthy..."
-until docker exec mss301-mssql-server /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'YourStrong@Password123' -C -Q 'SELECT 1' > /dev/null 2>&1; do
-    sleep 1
-done
-
-echo "Ensuring DBAccount, DBBrand, DBWatch exist..."
-docker exec mss301-mssql-server /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'YourStrong@Password123' -C -i /docker-entrypoint-initdb.d/init-databases.sql
+docker compose run --rm mssql-init
 
 mkdir -p logs
 

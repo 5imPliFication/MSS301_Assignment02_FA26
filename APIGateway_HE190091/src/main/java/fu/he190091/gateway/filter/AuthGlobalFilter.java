@@ -26,6 +26,9 @@ public class AuthGlobalFilter implements GlobalFilter, Ordered {
     private static final Logger log = LoggerFactory.getLogger(AuthGlobalFilter.class);
     private final JwtUtil jwtUtil;
 
+    @org.springframework.beans.factory.annotation.Value("${service.internal-key}")
+    private String internalKey;
+
     public AuthGlobalFilter(JwtUtil jwtUtil) {
         this.jwtUtil = jwtUtil;
     }
@@ -36,6 +39,10 @@ public class AuthGlobalFilter implements GlobalFilter, Ordered {
         String path = request.getURI().getPath();
         HttpMethod method = request.getMethod();
 
+        if (path.matches("/api/brands/[^/]+/(increment-watch|decrement-watch|compensate-increment|compensate-decrement)/?")) {
+            return onError(exchange, HttpStatus.FORBIDDEN, "Saga participant endpoints are internal only.");
+        }
+
         log.debug("Gateway evaluating request: {} {}", method, path);
 
         // 1. Bypass authentication for public endpoints:
@@ -43,7 +50,8 @@ public class AuthGlobalFilter implements GlobalFilter, Ordered {
         // - Requirement 1: "List all items in Watches table (...). Note that, No permissions for this function."
         // - Public Brand listing
         if (isPublicEndpoint(path, method)) {
-            return chain.filter(exchange);
+            return chain.filter(exchange.mutate().request(request.mutate()
+                    .header("X-Internal-Key", internalKey).build()).build());
         }
 
         // 2. Check Authorization Header
@@ -77,6 +85,7 @@ public class AuthGlobalFilter implements GlobalFilter, Ordered {
 
         // 4. Mutate request with authenticated user claims and propagate downstream
         ServerHttpRequest mutatedRequest = request.mutate()
+                .header("X-Internal-Key", internalKey)
                 .header("X-User-Id", accountId != null ? String.valueOf(accountId) : "")
                 .header("X-User-Name", username != null ? username : "")
                 .header("X-User-Role", role != null ? String.valueOf(role) : "")
@@ -87,7 +96,7 @@ public class AuthGlobalFilter implements GlobalFilter, Ordered {
 
     private boolean isPublicEndpoint(String path, HttpMethod method) {
         // Login endpoint
-        if (path.equals("/api/accounts/login")) {
+        if (path.equals("/api/accounts/login") && HttpMethod.POST.equals(method)) {
             return true;
         }
 
@@ -97,7 +106,7 @@ public class AuthGlobalFilter implements GlobalFilter, Ordered {
         }
 
         // Requirement 1: Public watch listing & details
-        if (HttpMethod.GET.equals(method) && path.startsWith("/api/watches")) {
+        if (HttpMethod.GET.equals(method) && path.startsWith("/api/watches") && !path.contains("/saga-logs")) {
             return true;
         }
 
@@ -110,6 +119,7 @@ public class AuthGlobalFilter implements GlobalFilter, Ordered {
     }
 
     private boolean requiresAdminRole(String path, HttpMethod method) {
+        if (path.contains("/saga-logs")) return true;
         // Requirements 2, 3, 4: Add, Update, Delete in Watches table require Administrator role
         if (path.startsWith("/api/watches") && (
                 HttpMethod.POST.equals(method) ||

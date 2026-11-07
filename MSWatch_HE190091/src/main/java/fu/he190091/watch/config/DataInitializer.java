@@ -177,7 +177,7 @@ public class DataInitializer implements CommandLineRunner {
                             .brandId(4)
                             .caseMaterial("Resin")
                             .strapMaterial("Resin")
-                            .waterpMaterial("300 meters")
+                            .waterpMaterial("30 meters")
                             .price(new BigDecimal("19.99"))
                             .releaseDate(LocalDate.of(1989, 1, 1))
                             .stock(1000)

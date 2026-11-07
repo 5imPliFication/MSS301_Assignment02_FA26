@@ -1,24 +1,48 @@
-version: '3.8'
-
+# Optional isolated SQL Server 2019. Local Windows SQL Server is the default setup.
 services:
   mssql:
-    image: mcr.microsoft.com/mssql/server:2022-latest
+    image: mcr.microsoft.com/mssql/server:2019-latest
     container_name: mss301-mssql-server
     environment:
-      - ACCEPT_EULA=Y
-      - MSSQL_SA_PASSWORD=YourStrong@Password123
-      - MSSQL_PID=Developer
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: AssignmentBootstrap@2019
+      MSSQL_PID: Developer
     ports:
       - "1433:1433"
     volumes:
-      - mssql-data:/var/opt/mssql
-      - ./sql/init-databases.sql:/docker-entrypoint-initdb.d/init-databases.sql
+      - mssql-2019-data:/var/opt/mssql
     healthcheck:
-      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'YourStrong@Password123' -C -Q 'SELECT 1' || /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P 'YourStrong@Password123' -Q 'SELECT 1'"]
+      test:
+        - CMD-SHELL
+        - >-
+          tool=/opt/mssql-tools18/bin/sqlcmd;
+          [ -x "$$tool" ] || tool=/opt/mssql-tools/bin/sqlcmd;
+          "$$tool" -S localhost -U sa -P sa -C -Q 'SELECT 1' ||
+          "$$tool" -S localhost -U sa -P 'AssignmentBootstrap@2019' -C -Q 'SELECT 1'
       interval: 5s
       timeout: 5s
-      retries: 10
-      start_period: 10s
+      retries: 20
+      start_period: 15s
+
+  mssql-init:
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    depends_on:
+      mssql:
+        condition: service_healthy
+    volumes:
+      - ./sql/init-databases.sql:/init-databases.sql:ro
+      - ./sql/container-init.sql:/container-init.sql:ro
+    entrypoint: ["/bin/bash", "-ec"]
+    command:
+      - >-
+        tool=/opt/mssql-tools18/bin/sqlcmd;
+        [ -x "$$tool" ] || tool=/opt/mssql-tools/bin/sqlcmd;
+        if "$$tool" -S mssql -U sa -P sa -C -Q 'SELECT 1'; then
+          "$$tool" -S mssql -U sa -P sa -C -b -i /init-databases.sql;
+        else
+          "$$tool" -S mssql -U sa -P 'AssignmentBootstrap@2019' -C -b -i /container-init.sql;
+        fi
+    restart: "no"
 
 volumes:
-  mssql-data:
+  mssql-2019-data:

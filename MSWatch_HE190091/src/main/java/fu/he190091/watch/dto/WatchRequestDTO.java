@@ -19,26 +19,33 @@ import java.time.LocalDate;
 public class WatchRequestDTO {
 
     @NotBlank(message = "Name is required")
-    @Size(min = 11, message = "Value for Name must be greater than 10 characters")
+    @Size(min = 11, max = 255, message = "Name must contain 11 to 255 characters")
     private String name;
 
     @NotNull(message = "CategoryID is required")
+    @Min(1)
     private Integer categoryId;
 
     @NotNull(message = "BrandID is required")
+    @Min(1)
     private Integer brandId;
 
     @NotBlank(message = "CaseMaterial is required")
+    @Size(max = 100)
     private String caseMaterial;
 
     @NotBlank(message = "StrapMaterial is required")
+    @Size(max = 100)
     private String strapMaterial;
 
     @NotBlank(message = "WaterpMaterial is required")
+    @Size(max = 50)
+    @com.fasterxml.jackson.annotation.JsonAlias("waterResistance")
     private String waterpMaterial;
 
     @NotNull(message = "Price is required")
     @DecimalMin(value = "100.00", message = "Value for Price must be >= 100")
+    @jakarta.validation.constraints.Digits(integer = 8, fraction = 2)
     private BigDecimal price;
 
     @NotNull(message = "ReleaseDate is required")

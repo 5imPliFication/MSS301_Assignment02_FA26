@@ -46,12 +46,14 @@ public class WatchService {
      * Requirement 1: List all items in Watches table (includes CategoryName).
      * No permissions for this function. Items displayed newest first.
      */
+    @Transactional(readOnly = true)
     public List<WatchResponseDTO> getAllWatches() {
         return watchRepository.findAllWithCategoryOrderByWatchIdDesc().stream()
                 .map(this::toDTO)
                 .toList();
     }
 
+    @Transactional(readOnly = true)
     public WatchResponseDTO getWatchById(Integer id) {
         Watch watch = watchRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Watch not found with ID: " + id));
@@ -61,7 +63,6 @@ public class WatchService {
     /**
      * Requirement 3: Add new item with business validations and Saga coordination.
      */
-    @Transactional
     public WatchResponseDTO createWatch(WatchRequestDTO request) {
         validateBusinessRules(request);
 
@@ -100,7 +101,7 @@ public class WatchService {
                     .stock(request.getStock())
                     .build();
 
-            savedWatch = watchRepository.save(watch);
+            savedWatch = watchRepository.saveAndFlush(watch);
             savedWatch.setCategory(category);
             log.info("Saga [{}]: Watch persisted with WatchID {}", sagaId, savedWatch.getWatchId());
         } catch (Exception e) {
@@ -113,7 +114,7 @@ public class WatchService {
                 log.info("Saga [{}]: Compensating transaction completed on MSBrand", sagaId);
                 recordSagaLog(sagaId, "CREATE_WATCH", null, request.getBrandId(), "COMPENSATED", "Compensated brand count");
             } catch (Exception compEx) {
-                log.error("Saga [{}]: Compensating transaction failed on MSBrand!", sagaId, compEx);
+                recordSagaLog(sagaId, "CREATE_WATCH", null, request.getBrandId(), "COMPENSATION_FAILED", compEx.getMessage());
             }
 
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to save watch: " + e.getMessage());
@@ -127,7 +128,6 @@ public class WatchService {
     /**
      * Requirement 4: Update existing item with validations and Saga coordination.
      */
-    @Transactional
     public WatchResponseDTO updateWatch(Integer id, WatchRequestDTO request) {
         validateBusinessRules(request);
 
@@ -161,8 +161,8 @@ public class WatchService {
                 brandClient.decrementWatchCount(oldBrandId);
             } catch (Exception e) {
                 log.warn("Saga [{}]: Decrementing old brand failed, rolling back new brand increment", sagaId);
-                brandClient.compensateIncrement(newBrandId);
-                recordSagaLog(sagaId, "UPDATE_WATCH", id, newBrandId, "COMPENSATED", "Rollback due to old brand decrement failure");
+                compensate(sagaId, "UPDATE_WATCH", id, newBrandId,
+                        () -> brandClient.compensateIncrement(newBrandId));
                 throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to coordinate brand migration");
             }
         } else {
@@ -187,16 +187,29 @@ public class WatchService {
         existingWatch.setReleaseDate(request.getReleaseDate());
         existingWatch.setStock(request.getStock());
 
-        Watch updatedWatch = watchRepository.save(existingWatch);
+        Watch updatedWatch;
+        try {
+            // Repository transaction commits before returning, so commit failures are caught here.
+            updatedWatch = watchRepository.saveAndFlush(existingWatch);
+        } catch (Exception e) {
+            if (!oldBrandId.equals(newBrandId)) {
+                compensate(sagaId, "UPDATE_WATCH", id, newBrandId,
+                        () -> brandClient.compensateDecrement(oldBrandId),
+                        () -> brandClient.compensateIncrement(newBrandId));
+            } else {
+                recordSagaLog(sagaId, "UPDATE_WATCH", id, newBrandId, "FAILED", e.getMessage());
+            }
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to update watch", e);
+        }
         recordSagaLog(sagaId, "UPDATE_WATCH", id, request.getBrandId(), "COMPLETED", "Watch updated successfully");
 
+        updatedWatch.setCategory(category);
         return toDTO(updatedWatch);
     }
 
     /**
      * Requirement 2: Delete selected item in Watches table with updating related Microservices (Saga).
      */
-    @Transactional
     public void deleteWatch(Integer id) {
         Watch watch = watchRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Watch not found with ID: " + id));
@@ -208,28 +221,38 @@ public class WatchService {
 
         Integer brandId = watch.getBrandId();
 
-        // Step 1: Remove locally
-        watchRepository.delete(watch);
-
-        // Step 2: Notify MSBrand to decrement watch count
+        // Update the remote participant first; failed local commits reverse this step.
         try {
             brandClient.decrementWatchCount(brandId);
-            log.info("Saga [{}]: Decremented watch count in MSBrand for brandId {}", sagaId, brandId);
-            recordSagaLog(sagaId, "DELETE_WATCH", id, brandId, "COMPLETED", "Watch deleted and brand updated");
         } catch (Exception e) {
-            log.error("Saga [{}]: MSBrand decrement failed, executing compensation by restoring watch", sagaId, e);
-            recordSagaLog(sagaId, "DELETE_WATCH", id, brandId, "COMPENSATING", "Brand decrement failed, restoring watch");
-
-            // Compensating Transaction: Restore watch locally
-            watch.setWatchId(null); // allow re-insert or save
-            watchRepository.save(watch);
-            recordSagaLog(sagaId, "DELETE_WATCH", id, brandId, "COMPENSATED", "Watch restored due to downstream failure");
-
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
-                    "Failed to coordinate deletion with BrandService: " + e.getMessage());
+            recordSagaLog(sagaId, "DELETE_WATCH", id, brandId, "FAILED", e.getMessage());
+            throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Brand service could not delete the relationship", e);
         }
+        try {
+            watchRepository.delete(watch);
+        } catch (Exception e) {
+            compensate(sagaId, "DELETE_WATCH", id, brandId,
+                    () -> brandClient.compensateDecrement(brandId));
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to delete watch", e);
+        }
+        recordSagaLog(sagaId, "DELETE_WATCH", id, brandId, "COMPLETED", "Watch deleted and brand updated");
     }
 
+    private void compensate(String sagaId, String action, Integer watchId, Integer brandId, Runnable... steps) {
+        recordSagaLog(sagaId, action, watchId, brandId, "COMPENSATING", "Reversing completed brand changes");
+        boolean failed = false;
+        for (Runnable step : steps) {
+            try {
+                step.run();
+            } catch (Exception e) {
+                failed = true;
+                log.error("Saga [{}]: Compensation failed; manual reconciliation required", sagaId, e);
+            }
+        }
+        recordSagaLog(sagaId, action, watchId, brandId,
+                failed ? "COMPENSATION_FAILED" : "COMPENSATED",
+                failed ? "Manual reconciliation required; inspect service logs" : "Brand changes reversed");
+    }
     /**
      * Strict assignment validations:
      * - Name > 10 characters
@@ -259,7 +282,7 @@ public class WatchService {
                     .watchId(watchId)
                     .brandId(brandId)
                     .status(status)
-                    .details(details)
+                    .details(details == null ? null : details.substring(0, Math.min(details.length(), 1000)))
                     .createdAt(LocalDateTime.now())
                     .build();
             sagaLogRepository.save(sagaLog);

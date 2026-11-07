@@ -44,7 +44,7 @@ public class BrandService {
 
     @Transactional
     public BrandDTO updateBrand(Integer id, BrandRequest request) {
-        WatchBrand brand = brandRepository.findById(id)
+        WatchBrand brand = brandRepository.findForUpdate(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Brand not found with ID: " + id));
         brand.setBrandName(request.getBrandName().trim());
         brand.setCountryOfOrigin(request.getCountryOfOrigin().trim());
@@ -53,17 +53,19 @@ public class BrandService {
 
     @Transactional
     public void deleteBrand(Integer id) {
-        if (!brandRepository.existsById(id)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Brand not found with ID: " + id);
+        WatchBrand brand = brandRepository.findForUpdate(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Brand not found with ID: " + id));
+        if (brand.getTotalWatches() != 0) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Cannot delete a brand referenced by watches");
         }
-        brandRepository.deleteById(id);
+        brandRepository.delete(brand);
     }
 
     // ================= Saga Pattern Participant Methods =================
 
     @Transactional
     public BrandDTO incrementWatchCount(Integer id) {
-        WatchBrand brand = brandRepository.findById(id)
+        WatchBrand brand = brandRepository.findForUpdate(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Brand not found with ID: " + id));
         brand.setTotalWatches(brand.getTotalWatches() + 1);
         return toDTO(brandRepository.save(brand));
@@ -71,27 +73,29 @@ public class BrandService {
 
     @Transactional
     public BrandDTO decrementWatchCount(Integer id) {
-        WatchBrand brand = brandRepository.findById(id)
+        WatchBrand brand = brandRepository.findForUpdate(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Brand not found with ID: " + id));
-        if (brand.getTotalWatches() > 0) {
-            brand.setTotalWatches(brand.getTotalWatches() - 1);
+        if (brand.getTotalWatches() <= 0) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Brand watch count cannot become negative");
         }
+        brand.setTotalWatches(brand.getTotalWatches() - 1);
         return toDTO(brandRepository.save(brand));
     }
 
     @Transactional
     public BrandDTO compensateIncrement(Integer id) {
-        WatchBrand brand = brandRepository.findById(id)
+        WatchBrand brand = brandRepository.findForUpdate(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Brand not found with ID: " + id));
-        if (brand.getTotalWatches() > 0) {
-            brand.setTotalWatches(brand.getTotalWatches() - 1);
+        if (brand.getTotalWatches() <= 0) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Brand watch count cannot become negative");
         }
+        brand.setTotalWatches(brand.getTotalWatches() - 1);
         return toDTO(brandRepository.save(brand));
     }
 
     @Transactional
     public BrandDTO compensateDecrement(Integer id) {
-        WatchBrand brand = brandRepository.findById(id)
+        WatchBrand brand = brandRepository.findForUpdate(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Brand not found with ID: " + id));
         brand.setTotalWatches(brand.getTotalWatches() + 1);
         return toDTO(brandRepository.save(brand));

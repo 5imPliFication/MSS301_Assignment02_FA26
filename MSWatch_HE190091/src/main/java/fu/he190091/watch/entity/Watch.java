@@ -15,6 +15,10 @@ import java.time.LocalDate;
 @Builder
 public class Watch {
 
+    @Version
+    @Column(name = "Version", nullable = false, columnDefinition = "bigint default 0")
+    private long version;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "WatchID")

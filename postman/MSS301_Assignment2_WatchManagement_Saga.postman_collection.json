@@ -11,7 +11,8 @@
       "script": {
         "type": "text/javascript",
         "exec": [
-          "var today = new Date().toISOString().slice(0, 10);",
+          "var now = new Date();",
+          "var today = [now.getFullYear(), String(now.getMonth() + 1).padStart(2, '0'), String(now.getDate()).padStart(2, '0')].join('-');",
           "pm.environment.set('current_date', today);"
         ]
       }
@@ -57,8 +58,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/accounts/login",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "accounts", "login"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "accounts",
+                "login"
+              ]
             }
           }
         },
@@ -96,8 +103,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/accounts/login",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "accounts", "login"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "accounts",
+                "login"
+              ]
             }
           }
         },
@@ -135,8 +148,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/accounts/login",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "accounts", "login"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "accounts",
+                "login"
+              ]
             }
           }
         },
@@ -169,8 +188,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/accounts/login",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "accounts", "login"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "accounts",
+                "login"
+              ]
             }
           }
         },
@@ -203,8 +228,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/accounts/login",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "accounts", "login"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "accounts",
+                "login"
+              ]
             }
           }
         }
@@ -247,8 +278,13 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/watches",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "watches"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "watches"
+              ]
             }
           }
         },
@@ -278,8 +314,14 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/watches/1",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "watches", "1"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "watches",
+                "1"
+              ]
             }
           }
         },
@@ -307,8 +349,14 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/watches/categories",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "watches", "categories"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "watches",
+                "categories"
+              ]
             }
           }
         }
@@ -346,8 +394,13 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/watches",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "watches"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "watches"
+              ]
             }
           }
         },
@@ -384,8 +437,13 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/watches",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "watches"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "watches"
+              ]
             }
           }
         },
@@ -422,8 +480,13 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/watches",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "watches"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "watches"
+              ]
             }
           }
         }
@@ -469,8 +532,13 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/watches",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "watches"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "watches"
+              ]
             }
           }
         },
@@ -511,8 +579,13 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/watches",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "watches"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "watches"
+              ]
             }
           }
         },
@@ -553,8 +626,13 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/watches",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "watches"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "watches"
+              ]
             }
           }
         }
@@ -585,8 +663,14 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/brands/3",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "brands", "3"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "brands",
+                "3"
+              ]
             }
           }
         },
@@ -629,8 +713,13 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/watches",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "watches"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "watches"
+              ]
             }
           }
         },
@@ -659,8 +748,14 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/brands/3",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "brands", "3"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "brands",
+                "3"
+              ]
             }
           }
         },
@@ -689,8 +784,13 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/watches",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "watches"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "watches"
+              ]
             }
           }
         },
@@ -716,11 +816,23 @@
           ],
           "request": {
             "method": "GET",
-            "header": [],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/api/watches/saga-logs/{{created_watch_id}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "watches", "saga-logs", "{{created_watch_id}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "watches",
+                "saga-logs",
+                "{{created_watch_id}}"
+              ]
             }
           }
         }
@@ -767,8 +879,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/watches/{{created_watch_id}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "watches", "{{created_watch_id}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "watches",
+                "{{created_watch_id}}"
+              ]
             }
           }
         },
@@ -796,8 +914,14 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/brands/1",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "brands", "1"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "brands",
+                "1"
+              ]
             }
           }
         },
@@ -825,8 +949,14 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/brands/3",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "brands", "3"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "brands",
+                "3"
+              ]
             }
           }
         }
@@ -872,8 +1002,13 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/watches",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "watches"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "watches"
+              ]
             }
           }
         }
@@ -907,8 +1042,14 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/watches/{{created_watch_id}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "watches", "{{created_watch_id}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "watches",
+                "{{created_watch_id}}"
+              ]
             }
           }
         },
@@ -936,8 +1077,14 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/brands/1",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "brands", "1"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "brands",
+                "1"
+              ]
             }
           }
         },
@@ -961,8 +1108,14 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/watches/{{created_watch_id}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "watches", "{{created_watch_id}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "watches",
+                "{{created_watch_id}}"
+              ]
             }
           }
         }
@@ -995,8 +1148,13 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/brands",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "brands"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "brands"
+              ]
             }
           }
         },
@@ -1026,10 +1184,346 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/brands/1",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "brands", "1"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "brands",
+                "1"
+              ]
             }
           }
+        }
+      ]
+    },
+    {
+      "name": "10. Regression checks",
+      "item": [
+        {
+          "request": {
+            "body": {
+              "raw": "{\r\n    \"name\":  \"Seiko Prospex Marine Master Diver\",\r\n    \"categoryId\":  1,\r\n    \"brandId\":  3,\r\n    \"caseMaterial\":  \"Titanium\",\r\n    \"strapMaterial\":  \"Silicone\",\r\n    \"waterpMaterial\":  \"300 meters\",\r\n    \"price\":  1850.00,\r\n    \"releaseDate\":  \"{{current_date}}\"\r\n}",
+              "mode": "raw"
+            },
+            "method": "POST",
+            "url": {
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "raw": "{{baseUrl}}/api/watches",
+              "path": [
+                "api",
+                "watches"
+              ]
+            },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ]
+          },
+          "name": "Regression: missing",
+          "event": [
+            {
+              "script": {
+                "exec": [
+                  "pm.test('Expected HTTP 400', function () { pm.response.to.have.status(400); });"
+                ],
+                "type": "text/javascript"
+              },
+              "listen": "test"
+            }
+          ]
+        },
+        {
+          "request": {
+            "body": {
+              "raw": "{\r\n    \"name\":  \"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\",\r\n    \"categoryId\":  1,\r\n    \"brandId\":  3,\r\n    \"caseMaterial\":  \"Titanium\",\r\n    \"strapMaterial\":  \"Silicone\",\r\n    \"waterpMaterial\":  \"300 meters\",\r\n    \"price\":  1850.00,\r\n    \"releaseDate\":  \"{{current_date}}\",\r\n    \"stock\":  15\r\n}",
+              "mode": "raw"
+            },
+            "method": "POST",
+            "url": {
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "raw": "{{baseUrl}}/api/watches",
+              "path": [
+                "api",
+                "watches"
+              ]
+            },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ]
+          },
+          "name": "Regression: long-name",
+          "event": [
+            {
+              "script": {
+                "exec": [
+                  "pm.test('Expected HTTP 400', function () { pm.response.to.have.status(400); });"
+                ],
+                "type": "text/javascript"
+              },
+              "listen": "test"
+            }
+          ]
+        },
+        {
+          "request": {
+            "body": {
+              "raw": "{\r\n    \"name\":  \"Seiko Prospex Marine Master Diver\",\r\n    \"categoryId\":  1,\r\n    \"brandId\":  3,\r\n    \"caseMaterial\":  \"Titanium\",\r\n    \"strapMaterial\":  \"Silicone\",\r\n    \"waterpMaterial\":  \"300 meters\",\r\n    \"price\":  100.001,\r\n    \"releaseDate\":  \"{{current_date}}\",\r\n    \"stock\":  15\r\n}",
+              "mode": "raw"
+            },
+            "method": "POST",
+            "url": {
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "raw": "{{baseUrl}}/api/watches",
+              "path": [
+                "api",
+                "watches"
+              ]
+            },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ]
+          },
+          "name": "Regression: precision",
+          "event": [
+            {
+              "script": {
+                "exec": [
+                  "pm.test('Expected HTTP 400', function () { pm.response.to.have.status(400); });"
+                ],
+                "type": "text/javascript"
+              },
+              "listen": "test"
+            }
+          ]
+        },
+        {
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "raw": "{{baseUrl}}/api/brands/1",
+              "path": [
+                "api",
+                "brands",
+                "1"
+              ]
+            },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ]
+          },
+          "name": "Regression: brand-delete",
+          "event": [
+            {
+              "script": {
+                "exec": [
+                  "pm.test('Expected HTTP 409', function () { pm.response.to.have.status(409); });"
+                ],
+                "type": "text/javascript"
+              },
+              "listen": "test"
+            }
+          ]
+        },
+        {
+          "request": {
+            "method": "POST",
+            "url": {
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "raw": "{{baseUrl}}/api/brands/1/increment-watch",
+              "path": [
+                "api",
+                "brands",
+                "1",
+                "increment-watch"
+              ]
+            },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ]
+          },
+          "name": "Regression: internal",
+          "event": [
+            {
+              "script": {
+                "exec": [
+                  "pm.test('Expected HTTP 403', function () { pm.response.to.have.status(403); });"
+                ],
+                "type": "text/javascript"
+              },
+              "listen": "test"
+            }
+          ]
+        },
+        {
+          "request": {
+            "body": {
+              "raw": "{\r\n    \"name\":  \"Seiko Prospex Marine Master Diver\",\r\n    \"categoryId\":  1,\r\n    \"brandId\":  3,\r\n    \"caseMaterial\":  \"Titanium\",\r\n    \"strapMaterial\":  \"Silicone\",\r\n    \"waterpMaterial\":  \"300 meters\",\r\n    \"price\":  1850.00,\r\n    \"releaseDate\":  \"{{current_date}}\"\r\n}",
+              "mode": "raw"
+            },
+            "method": "PUT",
+            "url": {
+              "raw": "{{baseUrl}}/api/watches/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "watches",
+                "1"
+              ]
+            },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{staff_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ]
+          },
+          "name": "staff cannot PUT watches",
+          "event": [
+            {
+              "script": {
+                "exec": [
+                  "pm.test('Administrator required', function () { pm.response.to.have.status(403); });"
+                ],
+                "type": "text/javascript"
+              },
+              "listen": "test"
+            }
+          ]
+        },
+        {
+          "request": {
+            "body": {
+              "raw": "{\r\n    \"name\":  \"Seiko Prospex Marine Master Diver\",\r\n    \"categoryId\":  1,\r\n    \"brandId\":  3,\r\n    \"caseMaterial\":  \"Titanium\",\r\n    \"strapMaterial\":  \"Silicone\",\r\n    \"waterpMaterial\":  \"300 meters\",\r\n    \"price\":  1850.00,\r\n    \"releaseDate\":  \"{{current_date}}\"\r\n}",
+              "mode": "raw"
+            },
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/api/watches/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "watches",
+                "1"
+              ]
+            },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{member_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ]
+          },
+          "name": "member cannot DELETE watches",
+          "event": [
+            {
+              "script": {
+                "exec": [
+                  "pm.test('Administrator required', function () { pm.response.to.have.status(403); });"
+                ],
+                "type": "text/javascript"
+              },
+              "listen": "test"
+            }
+          ]
+        },
+        {
+          "request": {
+            "body": {
+              "raw": "{broken",
+              "mode": "raw"
+            },
+            "method": "POST",
+            "url": {
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "raw": "{{baseUrl}}/api/watches",
+              "path": [
+                "api",
+                "watches"
+              ]
+            },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ]
+          },
+          "name": "Malformed JSON returns 400",
+          "event": [
+            {
+              "script": {
+                "exec": [
+                  "pm.test('Expected HTTP 400', function () { pm.response.to.have.status(400); });"
+                ],
+                "type": "text/javascript"
+              },
+              "listen": "test"
+            }
+          ]
         }
       ]
     }
